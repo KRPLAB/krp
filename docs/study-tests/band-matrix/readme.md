@@ -45,3 +45,7 @@ GOLUB, G. H.; VAN LOAN, C. F. **Matrix Computations**. 4. ed. Baltimore: Johns H
 
 SAAD, Y. **Iterative Methods for Sparse Linear Systems**. 2. ed. Philadelphia: SIAM, 2003.
 - O Capítulo 3 cobre formatos de armazenamento (CSR, COO, DIA). O formato que estamos usando é formalmente conhecido como **DIA (Diagonal Storage Format)**.
+
+UNIVESP. **Estrutura de Dados - Aula 14 - Matriz esparsa**. YouTube. Disponível em: https://youtu.be/C_ePgrEbLs0. Acesso em: 24 abr. 2026.
+
+NAGASURI, Bala Venkateswarlu. **Bandmatrix: This video explains how to store a band matrix in a 1-D array and access elements**. YouTube. Disponível em: https://youtu.be/iG6r-BhPH-Q. Acesso em: 25 abr. 2026.
