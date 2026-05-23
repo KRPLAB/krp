@@ -34,12 +34,31 @@ int main(int argc, char *argv[]) {
 
 	// Gera um vetor b = A * x_true, com x_true = (1,1,...,1)
 	double *x_true = malloc(tam * sizeof(double));
+	if (!x_true) {
+		fprintf(stderr, "Erro de alocação para x_true.\n");
+		libera_matriz(&a);
+		return 1;
+	}
 	for (int i = 0; i < tam; i++)
 		x_true[i] = 1.0;
 	double *b = matriz_banda_vetor(&a, x_true);
 
+	if (!b) {
+		fprintf(stderr, "Erro de alocação para b.\n");
+		free(x_true);
+		libera_matriz(&a);
+		return 1;
+	}
+
 	// Chute inicial x0 = (0,0,...,0)
 	double *x = calloc(tam, sizeof(double));
+	if (!x) {
+		fprintf(stderr, "Erro de alocação para x.\n");
+		free(x_true);
+		free(b);
+		libera_matriz(&a);
+		return 1;
+	}
 
 	// Parâmetros do CG
 	double tol = 1e-8;

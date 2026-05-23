@@ -82,9 +82,9 @@ class ResultsAnalyzer:
         speedup = defaultdict(dict)
         
         # Organiza por config
-        naive_data = {(r['config']['tamanho'], r['config']['bandas']): r 
+        naive_data = {(r['config']['tamanho'], r['config']['bandas'], r['config']['seed']): r 
                       for r in aggregated.get('cgSolver-naive', [])}
-        opt_data = {(r['config']['tamanho'], r['config']['bandas']): r 
+        opt_data = {(r['config']['tamanho'], r['config']['bandas'], r['config']['seed']): r 
                     for r in aggregated.get('cgSolver', [])}
         
         for config_key in naive_data:
@@ -102,7 +102,7 @@ class ResultsAnalyzer:
             output_file = self.json_file.replace('.json', '_aggregated.csv')
         
         with open(output_file, 'w') as f:
-            f.write("binario,tamanho,bandas,num_runs,tempo_media_s,tempo_stdev_s,iteracoes_media,erro_media\n")
+            f.write("binario,tamanho,bandas,seed,num_runs,tempo_media_s,tempo_stdev_s,iteracoes_media,erro_media\n")
             
             for binary_name, results in aggregated.items():
                 for result in results:
@@ -110,6 +110,7 @@ class ResultsAnalyzer:
                     f.write(f"{binary_name},"
                             f"{config['tamanho']},"
                             f"{config['bandas']},"
+                            f"{config['seed']},"
                             f"{result['num_runs']},"
                             f"{result['tempo']['media']:.6e},"
                             f"{result['tempo']['stdev']:.6e},"
@@ -130,13 +131,14 @@ class ResultsAnalyzer:
             
             # Tabela Naive
             f.write("## Resultados - Versão NAIVE\n\n")
-            f.write("|Tamanho|Bandas|Rodadas|Tempo (s)|Desvio|Iterações|Erro Relativo|\n")
-            f.write("|-------|------|-------|---------|------|---------|-------------|\n")
+            f.write("|Tamanho|Bandas|Seed|Rodadas|Tempo (s)|Desvio|Iterações|Erro Relativo|\n")
+            f.write("|-------|------|----|----|---------|------|---------|-------------|\n")
             
             for result in aggregated.get('cgSolver-naive', []):
                 config = result['config']
                 f.write(f"|{config['tamanho']:,}|"
                         f"{config['bandas']}|"
+                        f"{config['seed']}|"
                         f"{result['num_runs']}|"
                         f"{result['tempo']['media']:.6e}|"
                         f"{result['tempo']['stdev']:.6e}|"
@@ -145,13 +147,14 @@ class ResultsAnalyzer:
             
             # Tabela Otimizada
             f.write("\n## Resultados - Versão OTIMIZADA\n\n")
-            f.write("|Tamanho|Bandas|Rodadas|Tempo (s)|Desvio|Iterações|Erro Relativo|\n")
-            f.write("|-------|------|-------|---------|------|---------|-------------|\n")
+            f.write("|Tamanho|Bandas|Seed|Rodadas|Tempo (s)|Desvio|Iterações|Erro Relativo|\n")
+            f.write("|-------|------|----|----|---------|------|---------|-------------|\n")
             
             for result in aggregated.get('cgSolver', []):
                 config = result['config']
                 f.write(f"|{config['tamanho']:,}|"
                         f"{config['bandas']}|"
+                        f"{config['seed']}|"
                         f"{result['num_runs']}|"
                         f"{result['tempo']['media']:.6e}|"
                         f"{result['tempo']['stdev']:.6e}|"
@@ -161,11 +164,11 @@ class ResultsAnalyzer:
             # Tabela de Speedup
             if speedup:
                 f.write("\n## Speedup (Naive / Otimizado)\n\n")
-                f.write("|Tamanho|Bandas|Speedup|\n")
-                f.write("|-------|------|--------|\n")
+                f.write("|Tamanho|Bandas|Seed|Speedup|\n")
+                f.write("|-------|------|----|----|\n")
                 
-                for (tamanho, bandas), sp in sorted(speedup.items()):
-                    f.write(f"|{tamanho:,}|{bandas}|{sp:.2f}x|\n")
+                for (tamanho, bandas, seed), sp in sorted(speedup.items()):
+                    f.write(f"|{tamanho:,}|{bandas}|{seed}|{sp:.2f}x|\n")
         
         return output_file
     
@@ -181,15 +184,16 @@ class ResultsAnalyzer:
             f.write("\\centering\n")
             f.write("\\caption{Resultados - Versão NAIVE}\n")
             f.write("\\label{tab:naive}\n")
-            f.write("\\begin{tabular}{|c|c|c|c|c|c|c|}\n")
+            f.write("\\begin{tabular}{|c|c|c|c|c|c|c|c|}\n")
             f.write("\\hline\n")
-            f.write("Tamanho & Bandas & Rodadas & Tempo (s) & Desvio & Iterações & Erro \\\\\n")
+            f.write("Tamanho & Bandas & Seed & Rodadas & Tempo (s) & Desvio & Iterações & Erro \\\\\n")
             f.write("\\hline\n")
             
             for result in aggregated.get('cgSolver-naive', []):
                 config = result['config']
                 f.write(f"{config['tamanho']:,} & "
                         f"{config['bandas']} & "
+                        f"{config['seed']} & "
                         f"{result['num_runs']} & "
                         f"\\num{{{result['tempo']['media']:.3e}}} & "
                         f"\\num{{{result['tempo']['stdev']:.3e}}} & "
@@ -206,15 +210,16 @@ class ResultsAnalyzer:
             f.write("\\centering\n")
             f.write("\\caption{Resultados - Versão OTIMIZADA}\n")
             f.write("\\label{tab:otimizado}\n")
-            f.write("\\begin{tabular}{|c|c|c|c|c|c|c|}\n")
+            f.write("\\begin{tabular}{|c|c|c|c|c|c|c|c|}\n")
             f.write("\\hline\n")
-            f.write("Tamanho & Bandas & Rodadas & Tempo (s) & Desvio & Iterações & Erro \\\\\n")
+            f.write("Tamanho & Bandas & Seed & Rodadas & Tempo (s) & Desvio & Iterações & Erro \\\\\n")
             f.write("\\hline\n")
             
             for result in aggregated.get('cgSolver', []):
                 config = result['config']
                 f.write(f"{config['tamanho']:,} & "
                         f"{config['bandas']} & "
+                        f"{config['seed']} & "
                         f"{result['num_runs']} & "
                         f"\\num{{{result['tempo']['media']:.3e}}} & "
                         f"\\num{{{result['tempo']['stdev']:.3e}}} & "
@@ -232,13 +237,13 @@ class ResultsAnalyzer:
                 f.write("\\centering\n")
                 f.write("\\caption{Speedup: Naive / Otimizado}\n")
                 f.write("\\label{tab:speedup}\n")
-                f.write("\\begin{tabular}{|c|c|c|}\n")
+                f.write("\\begin{tabular}{|c|c|c|c|}\n")
                 f.write("\\hline\n")
-                f.write("Tamanho & Bandas & Speedup \\\\\n")
+                f.write("Tamanho & Bandas & Seed & Speedup \\\\\n")
                 f.write("\\hline\n")
                 
-                for (tamanho, bandas), sp in sorted(speedup.items()):
-                    f.write(f"{tamanho:,} & {bandas} & {sp:.2f}\\times \\\\\n")
+                for (tamanho, bandas, seed), sp in sorted(speedup.items()):
+                    f.write(f"{tamanho:,} & {bandas} & {seed} & {sp:.2f}\\times \\\\\n")
                 
                 f.write("\\hline\n")
                 f.write("\\end{tabular}\n")
