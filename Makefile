@@ -37,7 +37,24 @@ cgSolver: $(OBJS_OPT)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 test: all
+	@echo "Executando testes (1 rodada, sem Likwid)..."
 	bash ./scripts/run_tests.sh
+
+# Executa testes com múltiplas rodadas (ex: make test-runs NUM_RUNS=3)
+test-runs: all
+	@echo "Executando testes (${NUM_RUNS} rodadas)..."
+	bash ./scripts/run_tests.sh --runs ${NUM_RUNS}
+
+test-likwid: all
+	@echo "Executando testes com Likwid (3 rodadas)..."
+	bash ./scripts/run_tests.sh --runs 3 --likwid
+
+analyze:
+	@if [ -z "$(RESULTS)" ]; then \
+		echo "Uso: make analyze RESULTS=resultados_*.json"; \
+		exit 1; \
+	fi
+	@python3 ./scripts/analyze_results.py $(RESULTS)
 
 clean:
 	rm -rf obj cgSolver cgSolver-naive resultados_*.csv
