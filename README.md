@@ -102,7 +102,61 @@ tamanho,bandas,seed,iteracoes,tempo_execucao,erro_relativo
 
 ### Execução Automatizada (Bateria de Testes)
 
-Em construção.
+O projeto inclui um sistema automatizado para coleta de métricas em JSON com suporte a múltiplas rodadas e agregação estatística.
+
+**Script principal:** `scripts/run_tests.sh`
+
+```bash
+# Execução simples (1 rodada, sem Likwid)
+./scripts/run_tests.sh
+
+# 3 rodadas para cálculo de média e desvio padrão
+./scripts/run_tests.sh --runs 3
+
+# 5 rodadas com coleta de métricas de hardware (Likwid)
+./scripts/run_tests.sh --runs 5 --likwid
+
+# Modo silencioso
+./scripts/run_tests.sh --runs 3 --quiet
+```
+
+**Saída:** Um arquivo JSON com timestamp, estruturado hierarquicamente:
+```json
+{
+  "metadata": {"timestamp": "...", "num_runs": 3, "likwid_enabled": true},
+  "results": {
+    "cgSolver-naive": [{"config": {...}, "executions": [...]}],
+    "cgSolver": [...]
+  }
+}
+```
+
+#### Agregação e Geração de Relatórios
+
+Para agregar os resultados e gerar tabelas em múltiplos formatos:
+
+```bash
+python3 scripts/analyze_results.py resultados_2026-05-23T*.json
+```
+
+Gera automaticamente:
+- **CSV consolidado** (`_aggregated.csv`): para análise com Excel/Pandas
+- **Markdown** (`_report.md`): tabelas formatadas para README
+- **LaTeX** (`_tables.tex`): tabelas prontas para incluir no relatório PDF
+
+**Saída no console:**
+```
+RESUMO DA ANÁLISE
+=================
+cgSolver-naive:
+  N=   1024 | Bandas=7 | Tempo=1.234e-03s (±5.67e-05s)
+  ...
+
+Speedup (Naive / Otimizado):
+  Média: 2.45x
+  Min:   1.98x
+  Max:   3.12x
+```
 
 ---
 
