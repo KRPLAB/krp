@@ -41,6 +41,10 @@ class ResultsAnalyzer:
                 tempos = []
                 iteracoes = []
                 erros = []
+                l3_reqs = []
+                l3_misses = []
+                mem_bws = []
+                energies = []
                 
                 for exec_data in executions:
                     if exec_data['performance'] is not None:
@@ -48,6 +52,18 @@ class ResultsAnalyzer:
                         tempos.append(perf['tempo_s'])
                         iteracoes.append(perf['iteracoes'])
                         erros.append(perf['erro_relativo'])
+                    
+                    # Extrai métricas de hardware se disponíveis
+                    if exec_data.get('hardware_metrics') is not None:
+                        hw = exec_data['hardware_metrics']
+                        if hw.get('l3_request_rate') and hw['l3_request_rate'] != 0:
+                            l3_reqs.append(float(hw['l3_request_rate']))
+                        if hw.get('l3_miss_rate') and hw['l3_miss_rate'] != 0:
+                            l3_misses.append(float(hw['l3_miss_rate']))
+                        if hw.get('memory_bandwidth_mbps') and hw['memory_bandwidth_mbps'] != 0:
+                            mem_bws.append(float(hw['memory_bandwidth_mbps']))
+                        if hw.get('energy_core_j') and hw['energy_core_j'] != 0:
+                            energies.append(float(hw['energy_core_j']))
                 
                 if not tempos:
                     continue
@@ -70,6 +86,12 @@ class ResultsAnalyzer:
                         'media': statistics.mean(erros),
                         'min': min(erros),
                         'max': max(erros),
+                    },
+                    'hardware': {
+                        'l3_request_rate': statistics.mean(l3_reqs) if l3_reqs else 0,
+                        'l3_miss_rate': statistics.mean(l3_misses) if l3_misses else 0,
+                        'memory_bandwidth_gb_s': statistics.mean(mem_bws) if mem_bws else 0,
+                        'energy_core_j': statistics.mean(energies) if energies else 0,
                     }
                 }
                 
@@ -102,11 +124,12 @@ class ResultsAnalyzer:
             output_file = self.json_file.replace('.json', '_aggregated.csv')
         
         with open(output_file, 'w') as f:
-            f.write("binario,tamanho,bandas,seed,num_runs,tempo_media_s,tempo_stdev_s,iteracoes_media,erro_media\n")
+            f.write("binario,tamanho,bandas,seed,num_runs,tempo_media_s,tempo_stdev_s,iteracoes_media,erro_media,l3_request_rate,l3_miss_rate,memory_bandwidth_mbps,energy_core_j\n")
             
             for binary_name, results in aggregated.items():
                 for result in results:
                     config = result['config']
+                    hw = result['hardware']
                     f.write(f"{binary_name},"
                             f"{config['tamanho']},"
                             f"{config['bandas']},"
@@ -115,7 +138,11 @@ class ResultsAnalyzer:
                             f"{result['tempo']['media']:.6e},"
                             f"{result['tempo']['stdev']:.6e},"
                             f"{result['iteracoes']['media']:.1f},"
-                            f"{result['erro']['media']:.6e}\n")
+                            f"{result['erro']['media']:.6e},"
+                            f"{hw['l3_request_rate']:.6f},"
+                            f"{hw['l3_miss_rate']:.6f},"
+                            f"{hw['memory_bandwidth_gb_s']:.2f},"
+                            f"{hw['energy_core_j']:.6f}\n")
         
         return output_file
     
@@ -127,45 +154,56 @@ class ResultsAnalyzer:
         with open(output_file, 'w') as f:
             f.write("# Relatório de Análise de Resultados\n\n")
             f.write(f"**Arquivo de entrada:** `{self.json_file}`\n")
-            f.write(f"**Número de rodadas:** {self.data['metadata']['num_runs']}\n\n")
+            f.write(f"**Número de rodadas:** {self.data['metadata']['num_runs']}\n")
+            f.write(f"**Likwid habilitado:** {self.data['metadata']['likwid_enabled']}\n\n")
             
             # Tabela Naive
             f.write("## Resultados - Versão NAIVE\n\n")
-            f.write("|Tamanho|Bandas|Seed|Rodadas|Tempo (s)|Desvio|Iterações|Erro Relativo|\n")
-            f.write("|-------|------|----|----|---------|------|---------|-------------|\n")
+            f.write("|Tamanho|Bandas|Seed|Rodadas|Tempo (s)|Desvio|Iterações|Erro Relativo|L3 Req|L3 Miss|MEM BW (MB/s)|Energia|\n")
+            f.write("|-------|------|----|----|---------|------|---------|-------------|------|-------|-------|-------|\n")
             
             for result in aggregated.get('cgSolver-naive', []):
                 config = result['config']
+                hw = result['hardware']
                 f.write(f"|{config['tamanho']:,}|"
                         f"{config['bandas']}|"
                         f"{config['seed']}|"
                         f"{result['num_runs']}|"
-                        f"{result['tempo']['media']:.6e}|"
-                        f"{result['tempo']['stdev']:.6e}|"
+                        f"{result['tempo']['media']:.3e}|"
+                        f"{result['tempo']['stdev']:.3e}|"
                         f"{result['iteracoes']['media']:.0f}|"
-                        f"{result['erro']['media']:.6e}|\n")
+                        f"{result['erro']['media']:.3e}|"
+                        f"{hw['l3_request_rate']:.4f}|"
+                        f"{hw['l3_miss_rate']:.4f}|"
+                        f"{hw['memory_bandwidth_gb_s']:.0f}|"
+                        f"{hw['energy_core_j']:.2f}|\n")
             
             # Tabela Otimizada
             f.write("\n## Resultados - Versão OTIMIZADA\n\n")
-            f.write("|Tamanho|Bandas|Seed|Rodadas|Tempo (s)|Desvio|Iterações|Erro Relativo|\n")
-            f.write("|-------|------|----|----|---------|------|---------|-------------|\n")
+            f.write("|Tamanho|Bandas|Seed|Rodadas|Tempo (s)|Desvio|Iterações|Erro Relativo|L3 Req|L3 Miss|MEM BW (MB/s)|Energia|\n")
+            f.write("|-------|------|----|----|---------|------|---------|-------------|------|-------|-------|-------|\n")
             
             for result in aggregated.get('cgSolver', []):
                 config = result['config']
+                hw = result['hardware']
                 f.write(f"|{config['tamanho']:,}|"
                         f"{config['bandas']}|"
                         f"{config['seed']}|"
                         f"{result['num_runs']}|"
-                        f"{result['tempo']['media']:.6e}|"
-                        f"{result['tempo']['stdev']:.6e}|"
+                        f"{result['tempo']['media']:.3e}|"
+                        f"{result['tempo']['stdev']:.3e}|"
                         f"{result['iteracoes']['media']:.0f}|"
-                        f"{result['erro']['media']:.6e}|\n")
+                        f"{result['erro']['media']:.3e}|"
+                        f"{hw['l3_request_rate']:.4f}|"
+                        f"{hw['l3_miss_rate']:.4f}|"
+                        f"{hw['memory_bandwidth_gb_s']:.0f}|"
+                        f"{hw['energy_core_j']:.2f}|\n")
             
             # Tabela de Speedup
             if speedup:
                 f.write("\n## Speedup (Naive / Otimizado)\n\n")
                 f.write("|Tamanho|Bandas|Seed|Speedup|\n")
-                f.write("|-------|------|----|----|\n")
+                f.write("|-------|------|----|--------|\n")
                 
                 for (tamanho, bandas, seed), sp in sorted(speedup.items()):
                     f.write(f"|{tamanho:,}|{bandas}|{seed}|{sp:.2f}x|\n")
@@ -184,13 +222,14 @@ class ResultsAnalyzer:
             f.write("\\centering\n")
             f.write("\\caption{Resultados - Versão NAIVE}\n")
             f.write("\\label{tab:naive}\n")
-            f.write("\\begin{tabular}{|c|c|c|c|c|c|c|c|}\n")
+            f.write("\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}\n")
             f.write("\\hline\n")
-            f.write("Tamanho & Bandas & Seed & Rodadas & Tempo (s) & Desvio & Iterações & Erro \\\\\n")
+            f.write("Tamanho & Bandas & Seed & Rodadas & Tempo & Desvio & Iter. & Erro & L3R & L3M & BW \\\\\n")
             f.write("\\hline\n")
             
             for result in aggregated.get('cgSolver-naive', []):
                 config = result['config']
+                hw = result['hardware']
                 f.write(f"{config['tamanho']:,} & "
                         f"{config['bandas']} & "
                         f"{config['seed']} & "
@@ -198,7 +237,10 @@ class ResultsAnalyzer:
                         f"\\num{{{result['tempo']['media']:.3e}}} & "
                         f"\\num{{{result['tempo']['stdev']:.3e}}} & "
                         f"{result['iteracoes']['media']:.0f} & "
-                        f"\\num{{{result['erro']['media']:.3e}}} \\\\\n")
+                        f"\\num{{{result['erro']['media']:.3e}}} & "
+                        f"{hw['l3_request_rate']:.4f} & "
+                        f"{hw['l3_miss_rate']:.4f} & "
+                        f"{hw['memory_bandwidth_gb_s']:.2f} \\\\\n")
             
             f.write("\\hline\n")
             f.write("\\end{tabular}\n")
@@ -210,13 +252,14 @@ class ResultsAnalyzer:
             f.write("\\centering\n")
             f.write("\\caption{Resultados - Versão OTIMIZADA}\n")
             f.write("\\label{tab:otimizado}\n")
-            f.write("\\begin{tabular}{|c|c|c|c|c|c|c|c|}\n")
+            f.write("\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}\n")
             f.write("\\hline\n")
-            f.write("Tamanho & Bandas & Seed & Rodadas & Tempo (s) & Desvio & Iterações & Erro \\\\\n")
+            f.write("Tamanho & Bandas & Seed & Rodadas & Tempo & Desvio & Iter. & Erro & L3R & L3M & BW \\\\\n")
             f.write("\\hline\n")
             
             for result in aggregated.get('cgSolver', []):
                 config = result['config']
+                hw = result['hardware']
                 f.write(f"{config['tamanho']:,} & "
                         f"{config['bandas']} & "
                         f"{config['seed']} & "
@@ -224,7 +267,10 @@ class ResultsAnalyzer:
                         f"\\num{{{result['tempo']['media']:.3e}}} & "
                         f"\\num{{{result['tempo']['stdev']:.3e}}} & "
                         f"{result['iteracoes']['media']:.0f} & "
-                        f"\\num{{{result['erro']['media']:.3e}}} \\\\\n")
+                        f"\\num{{{result['erro']['media']:.3e}}} & "
+                        f"{hw['l3_request_rate']:.4f} & "
+                        f"{hw['l3_miss_rate']:.4f} & "
+                        f"{hw['memory_bandwidth_gb_s']:.2f} \\\\\n")
             
             f.write("\\hline\n")
             f.write("\\end{tabular}\n")
@@ -253,9 +299,9 @@ class ResultsAnalyzer:
     
     def print_summary(self, aggregated: Dict, speedup: Dict):
         """Imprime resumo no console"""
-        print("\n" + "="*80)
+        print("\n" + "="*100)
         print("RESUMO DA ANÁLISE")
-        print("="*80 + "\n")
+        print("="*100 + "\n")
         
         print(f"Arquivo: {self.json_file}")
         print(f"Número de rodadas: {self.data['metadata']['num_runs']}")
@@ -267,16 +313,18 @@ class ResultsAnalyzer:
                 continue
             
             print(f"\n{binary_name}:")
-            print("-" * 80)
+            print("-" * 100)
             for result in results[:3]:  # Mostra primeiros 3
                 config = result['config']
-                print(f"  N={config['tamanho']:>7} | Bandas={config['bandas']} | "
-                      f"Tempo={result['tempo']['media']:.6e}s "
-                      f"(±{result['tempo']['stdev']:.6e}s)")
+                hw = result['hardware']
+                print(f"  N={config['tamanho']:>7} | B={config['bandas']} | Seed={config['seed']} | "
+                      f"T={result['tempo']['media']:.3e}s ± {result['tempo']['stdev']:.3e}s | "
+                      f"BW={hw['memory_bandwidth_gb_s']:.0f} MB/s | "
+                      f"Energy={hw['energy_core_j']:.2f}J")
         
         if speedup:
             print(f"\n\nSpeedup (Naive / Otimizado):")
-            print("-" * 80)
+            print("-" * 100)
             speedup_values = list(speedup.values())
             print(f"  Média: {statistics.mean(speedup_values):.2f}x")
             print(f"  Min:   {min(speedup_values):.2f}x")

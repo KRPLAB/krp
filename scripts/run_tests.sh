@@ -167,57 +167,42 @@ print_step "!! Compilação concluída com sucesso"
 
 	      # Coleta métricas do LIKWID apenas na primeira execução
 	      if [ $ENABLE_LIKWID -eq 1 ] && [ $run -eq 1 ]; then
-		      L3_FILE="/tmp/likwid_l3_${BINARY}.txt"
-		      MEM_FILE="/tmp/likwid_mem_${BINARY}.txt"
-		      FLOPS_FILE="/tmp/likwid_flops_${BINARY}.txt"
-		      ENERGY_FILE="/tmp/likwid_energy_${BINARY}.txt"
+		      L3_FILE="/tmp/likwid_l3_$$.txt"
+		      MEM1_FILE="/tmp/likwid_mem1_$$.txt"
+		      ENERGY_FILE="/tmp/likwid_energy_$$.txt"
 
 		      # L3 Cache
 		      sudo likwid-perfctr -C 0 -g L3CACHE ./$BINARY $n $b $s \
 			      > "$L3_FILE" 2>&1 || true
 
-		      # Memória
-		      sudo likwid-perfctr -C 0 -g MEM ./$BINARY $n $b $s \
-			      > "$MEM_FILE" 2>&1 || true
-
-		      # FLOPS double precision
-		      sudo likwid-perfctr -C 0 -g FLOPS_DP ./$BINARY $n $b $s \
-			      > "$FLOPS_FILE" 2>&1 || true
+		      # MEM1 (Memory bandwidth channels 0-3)
+		      sudo likwid-perfctr -C 0 -f -g MEM1 ./$BINARY $n $b $s \
+			      > "$MEM1_FILE" 2>&1 || true
 
 		      # Energia
-		      sudo likwid-perfctr -C 0 -g ENERGY ./$BINARY $n $b $s \
+		      sudo likwid-perfctr -C 0 -f -g ENERGY ./$BINARY $n $b $s \
 			      > "$ENERGY_FILE" 2>&1 || true
 
-		      # Extração das métricas
-		      L3_REQ=$(grep "L3 request rate" "$L3_FILE" | awk '{print $NF}' | head -1)
-		      L3_MISS=$(grep "L3 miss rate" "$L3_FILE" | awk '{print $NF}' | head -1)
+			  # Extração das métricas (usando o pipe '|' como delimitador)
+              L3_REQ=$(grep "L3 request rate" "$L3_FILE" | awk -F'|' '{print $3}' | tr -d ' ')
+              L3_MISS=$(grep "L3 miss rate" "$L3_FILE" | awk -F'|' '{print $3}' | tr -d ' ')
+              MEMORY_BW=$(grep "Memory bandwidth.*channels 0-3" "$MEM1_FILE" | awk -F'|' '{print $3}' | tr -d ' ')
+              ENERGY_J=$(grep "Energy Core \[J\]" "$ENERGY_FILE" | awk -F'|' '{print $3}' | tr -d ' ')
 
-		      MEM_BW=$(grep "Memory bandwidth" "$MEM_FILE" | awk '{print $NF}' | head -1)
-
-		      FLOPS_DP=$(grep "DP MFLOP/s" "$FLOPS_FILE" | awk '{print $NF}' | head -1)
-
-		      ENERGY=$(grep "Energy \[J\]" "$ENERGY_FILE" | awk '{print $NF}' | head -1)
-
-		      # Valores padrão
-		      L3_REQ=${L3_REQ:-0}
-		      L3_MISS=${L3_MISS:-0}
-		      MEM_BW=${MEM_BW:-0}
-		      FLOPS_DP=${FLOPS_DP:-0}
-		      ENERGY=${ENERGY:-0}
+              # Valores padrão se vazio (caso a métrica não exista no relatório)
+              L3_REQ=${L3_REQ:-0}
+              L3_MISS=${L3_MISS:-0}
+              MEMORY_BW=${MEMORY_BW:-0}
+              ENERGY_J=${ENERGY_J:-0}
 
 		      echo "            \"hardware_metrics\": {"
 		      echo "              \"l3_request_rate\": $L3_REQ,"
 		      echo "              \"l3_miss_rate\": $L3_MISS,"
-		      echo "              \"memory_bandwidth_gb_s\": $MEM_BW,"
-		      echo "              \"flops_dp_mflops\": $FLOPS_DP,"
-		      echo "              \"energy_j\": $ENERGY"
+		      echo "              \"memory_bandwidth_mbps\": $MEMORY_BW,"
+		      echo "              \"energy_core_j\": $ENERGY_J"
 		      echo "            }"
 
-		      rm -f \
-			      "$L3_FILE" \
-			      "$MEM_FILE" \
-			      "$FLOPS_FILE" \
-			      "$ENERGY_FILE"
+		      rm -f "$L3_FILE" "$MEM1_FILE" "$ENERGY_FILE"
 
 	      else
 		      echo "            \"hardware_metrics\": null"
