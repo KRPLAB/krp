@@ -63,14 +63,14 @@ OUTPUT_FILE="resultados_${TIMESTAMP//:/-}.json"
 
 # Função para extrair métrica do Likwid
 extract_likwid_metric() {
-	local file=$1
-	local metric_name=$2
-
-	if [ ! -f "$file" ]; then
-		echo "0"
-		return
-	fi
-
+  local file=$1
+  local metric_name=$2
+  
+  if [ ! -f "$file" ]; then
+    echo "0"
+    return
+  fi
+  
   # Procura por padrões comuns no output do Likwid
   grep -oP "(?<=$metric_name\s+:\s)\S+" "$file" 2>/dev/null | head -1 || echo "0"
 }
@@ -106,7 +106,7 @@ print_step "!! Compilação concluída com sucesso"
 
   # Loop sobre cada binário
   FIRST_BINARY=1
-  for BINARY in "cgSolver-naive" "cgSolver"; do
+  for BINARY in "cgSolver-naive"; do
 	  if [ ! -f "./$BINARY" ]; then
 		  continue
 	  fi
@@ -165,20 +165,60 @@ print_step "!! Compilação concluída com sucesso"
 		    echo "              \"erro_relativo\": ${erro:-0.0}"
 		    echo "            },"
 
-	      # Coleta Likwid se ativado
-	      if [ $ENABLE_LIKWID -eq 1 ]; then
-		      LIKWID_FILE="/tmp/likwid_${BINARY}_${run}.txt"
-		      likwid-perfctr -C 0-3 -g L3CACHE,MEM,FLOPS_AVX,ENERGY -m ./$BINARY $n $b $s > "$LIKWID_FILE" 2>&1 || true
+	      # Coleta métricas do LIKWID apenas na primeira execução
+	      if [ $ENABLE_LIKWID -eq 1 ] && [ $run -eq 1 ]; then
+		      L3_FILE="/tmp/likwid_l3_${BINARY}.txt"
+		      MEM_FILE="/tmp/likwid_mem_${BINARY}.txt"
+		      FLOPS_FILE="/tmp/likwid_flops_${BINARY}.txt"
+		      ENERGY_FILE="/tmp/likwid_energy_${BINARY}.txt"
+
+		      # L3 Cache
+		      sudo likwid-perfctr -C 0 -g L3CACHE ./$BINARY $n $b $s \
+			      > "$L3_FILE" 2>&1 || true
+
+		      # Memória
+		      sudo likwid-perfctr -C 0 -g MEM ./$BINARY $n $b $s \
+			      > "$MEM_FILE" 2>&1 || true
+
+		      # FLOPS double precision
+		      sudo likwid-perfctr -C 0 -g FLOPS_DP ./$BINARY $n $b $s \
+			      > "$FLOPS_FILE" 2>&1 || true
+
+		      # Energia
+		      sudo likwid-perfctr -C 0 -g ENERGY ./$BINARY $n $b $s \
+			      > "$ENERGY_FILE" 2>&1 || true
+
+		      # Extração das métricas
+		      L3_REQ=$(grep "L3 request rate" "$L3_FILE" | awk '{print $NF}' | head -1)
+		      L3_MISS=$(grep "L3 miss rate" "$L3_FILE" | awk '{print $NF}' | head -1)
+
+		      MEM_BW=$(grep "Memory bandwidth" "$MEM_FILE" | awk '{print $NF}' | head -1)
+
+		      FLOPS_DP=$(grep "DP MFLOP/s" "$FLOPS_FILE" | awk '{print $NF}' | head -1)
+
+		      ENERGY=$(grep "Energy \[J\]" "$ENERGY_FILE" | awk '{print $NF}' | head -1)
+
+		      # Valores padrão
+		      L3_REQ=${L3_REQ:-0}
+		      L3_MISS=${L3_MISS:-0}
+		      MEM_BW=${MEM_BW:-0}
+		      FLOPS_DP=${FLOPS_DP:-0}
+		      ENERGY=${ENERGY:-0}
 
 		      echo "            \"hardware_metrics\": {"
-		      echo "              \"l3_hits\": $(extract_likwid_metric "$LIKWID_FILE" "L3CACHE"),"
-		      echo "              \"l3_misses\": $(extract_likwid_metric "$LIKWID_FILE" "L3_miss"),"
-		      echo "              \"bandwidth_gb_s\": $(extract_likwid_metric "$LIKWID_FILE" "Memory Bandwidth"),"
-		      echo "              \"flops_gflops\": $(extract_likwid_metric "$LIKWID_FILE" "FLOPS_AVX"),"
-		      echo "              \"energy_j\": $(extract_likwid_metric "$LIKWID_FILE" "Energy")"
+		      echo "              \"l3_request_rate\": $L3_REQ,"
+		      echo "              \"l3_miss_rate\": $L3_MISS,"
+		      echo "              \"memory_bandwidth_gb_s\": $MEM_BW,"
+		      echo "              \"flops_dp_mflops\": $FLOPS_DP,"
+		      echo "              \"energy_j\": $ENERGY"
 		      echo "            }"
 
-		      rm -f "$LIKWID_FILE"
+		      rm -f \
+			      "$L3_FILE" \
+			      "$MEM_FILE" \
+			      "$FLOPS_FILE" \
+			      "$ENERGY_FILE"
+
 	      else
 		      echo "            \"hardware_metrics\": null"
 	      fi
