@@ -19,15 +19,15 @@ static double dot_product(const double *a, const double *b, int n) {
  *
  * Retorna novo x (deve ser liberado pelo chamador).
  */
-double *gradiente_conjugado(const struct matriz_banda *A, const double *x,
+double *gradiente_conjugado(const struct matriz_banda *a, const double *x,
                             double *r, const double *d) {
 	// z = A * d
-	double *z = matriz_banda_vetor(A, d);
+	double *z = matriz_banda_vetor(a, d);
 	if (!z)
 		return NULL;
 
-	double r_dot = dot_product(r, r, A->linhas);
-	double d_dot_z = dot_product(d, z, A->linhas);
+	double r_dot = dot_product(r, r, a->linhas);
+	double d_dot_z = dot_product(d, z, a->linhas);
 	if (d_dot_z == 0.0) {
 		free(z);
 		return NULL;
@@ -35,16 +35,16 @@ double *gradiente_conjugado(const struct matriz_banda *A, const double *x,
 	double alpha = r_dot / d_dot_z;
 
 	// x_new = x + alpha * d
-	double *x_new = malloc(A->linhas * sizeof(double));
+	double *x_new = malloc(a->linhas * sizeof(double));
 	if (!x_new) {
 		free(z);
 		return NULL;
 	}
-	for (int i = 0; i < A->linhas; i++)
+	for (int i = 0; i < a->linhas; i++)
 		x_new[i] = x[i] + alpha * d[i];
 
 	// r = r - alpha * z  (atualização in-place)
-	for (int i = 0; i < A->linhas; i++)
+	for (int i = 0; i < a->linhas; i++)
 		r[i] -= alpha * z[i];
 
 	free(z);
@@ -66,13 +66,13 @@ void update_d(double *d, const double *r, double beta, int n) {
  * O vetor x deve vir alocado com o chute inicial e será sobrescrito com a
  * solução. Retorna o número de iterações realizadas.
  */
-int cg_solve(const struct matriz_banda *A, const double *b, double *x,
+int cg_solve(const struct matriz_banda *a, const double *b, double *x,
              double tol, int max_iter) {
-	int n = A->linhas;
+	int n = a->linhas;
 	int iter = 0;
 
 	// r0 = b - A*x0
-	double *Ax = matriz_banda_vetor(A, x);
+	double *Ax = matriz_banda_vetor(a, x);
 	if (!Ax)
 		return -1;
 
@@ -96,7 +96,7 @@ int cg_solve(const struct matriz_banda *A, const double *b, double *x,
 	while (aux > tol2 && iter < max_iter) {
 		double r_dot_old = aux;
 
-		double *x_new = gradiente_conjugado(A, x, r, d);
+		double *x_new = gradiente_conjugado(a, x, r, d);
 		if (!x_new) {
 			free(r);
 			free(d);

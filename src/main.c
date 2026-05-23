@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 // Protótipos das funções do CG (definidas em cg_naive.c ou cg_opt.c)
-int cg_solve(const struct matriz_banda *A, const double *b, double *x,
+int cg_solve(const struct matriz_banda *a, const double *b, double *x,
              double tol, int max_iter);
 
 int main(int argc, char *argv[]) {
@@ -28,15 +28,15 @@ int main(int argc, char *argv[]) {
 	}
 
 	int meia_banda = (bandas - 1) / 2;
-	struct matriz_banda A;
-	inicializa_matriz(&A, tam, meia_banda);
-	preenche_matriz(&A, seed_mat, seed_diag);
+	struct matriz_banda a;
+	inicializa_matriz(&a, tam, meia_banda);
+	preenche_matriz(&a, seed_mat, seed_diag);
 
 	// Gera um vetor b = A * x_true, com x_true = (1,1,...,1)
 	double *x_true = malloc(tam * sizeof(double));
 	for (int i = 0; i < tam; i++)
 		x_true[i] = 1.0;
-	double *b = matriz_banda_vetor(&A, x_true);
+	double *b = matriz_banda_vetor(&a, x_true);
 
 	// Chute inicial x0 = (0,0,...,0)
 	double *x = calloc(tam, sizeof(double));
@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
 
 	// Inicia medição de tempo
 	double t_inicio = get_time_sec();
-	int iters = cg_solve(&A, b, x, tol, max_iter);
+	int iters = cg_solve(&a, b, x, tol, max_iter);
 	double t_fim = get_time_sec();
 	double tempo = t_fim - t_inicio;
 
@@ -56,12 +56,12 @@ int main(int argc, char *argv[]) {
 		free(x_true);
 		free(b);
 		free(x);
-		libera_matriz(&A);
+		libera_matriz(&a);
 		return 1;
 	}
 
 	// Calcula erro relativo
-	double *Ax_final = matriz_banda_vetor(&A, x);
+	double *Ax_final = matriz_banda_vetor(&a, x);
 	double erro = 0.0, norma_b = 0.0;
 	for (int i = 0; i < tam; i++) {
 		double diff = Ax_final[i] - b[i];
@@ -78,6 +78,6 @@ int main(int argc, char *argv[]) {
 	free(x_true);
 	free(b);
 	free(x);
-	libera_matriz(&A);
+	libera_matriz(&a);
 	return 0;
 }
