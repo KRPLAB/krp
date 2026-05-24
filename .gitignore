@@ -3,5 +3,6 @@
 cgSolver
 cgSolver-dia
 cgSolver-naive
+cgSolver-avx
 graficos/*
 docs/
