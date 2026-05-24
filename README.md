@@ -21,37 +21,64 @@ As principais especificações do projeto incluem:
 
 Mais detalhes sobre especificações, critérios de avaliação e requisitos estão disponíveis no enunciado oficial do trabalho no arquivo [`docs/especificacao-t1.pdf`](docs/especificacao-t1.pdf).
 
-O projeto conta com duas versões do solucionador:
-- **`cgSolver_naive`**: Implementação direta do algoritmo matemático.
-- **`cgSolver_opt`**: Implementação com foco em otimização de CPU (Loop Unrolling & Jam, instruções vetorizadas AVX) e melhor uso da memória Cache.
+O projeto conta com **três versões** do solucionador CG, cada uma com um nível crescente de otimização:
+
+1. **`cgSolver-naive`**: Implementação direta do algoritmo matemático, sem otimizações de compilador (-O0).
+2. **`cgSolver`**: Implementação otimizada com flags de compilador (-O3 -march=native) e loop unrolling manual + restrict.
+3. **`cgSolver-dia`**: Implementação com formato DIA (Diagonal Storage) puro, permitindo vetorização automática (SIMD/AVX2) para acessos com stride regular ao vetor de solução.
 
 ## Estrutura do Repositório
 
 ```
 krp/
-├── src/                        # Código-fonte do projeto
-│   ├── cg_naive.c              # Implementação ingênua do CG
-│   ├── cg_opt.c                # Implementação otimizada do CG
-│   ├── band_matrix.c           # Funções para geração e manipulação de matrizes de banda
-│   ├── timer.c                 # Funções para medição de tempo
-│   └── main.c                  # Programa principal para execução dos testes
-├── include/                    # Arquivos de cabeçalho
-│   ├── common.h                # Definições comuns e macros
-│   ├── band_matrix.h           # Protótipos para matrizes de banda
-│   └── timer.h                 # Protótipos para funções de temporização
-├── scripts/                    # Scripts para execução de testes e geração de resultados
-│   ├── run_tests.sh            # Script para rodar os testes e coletar resultados
-│   └── likwid_metrics.sh       # Script para coletar métricas de desempenho com LIKWID
-├── docs/                       # Documentação e enunciados
-│   ├── study-tests/            # Documentação dos testes de estudo
-│   │   ├── band-matrix/        # Estudo e ADR sobre armazenamento em banda
-│   │   │   └── readme.md
-│   │   └── gradients/          # Estudo sobre Método do Gradiente Conjugado
-│   │       └── readme.md
-│   └── especificacao-t1.pdf    # Enunciado oficial do trabalho
-├── Makefile                    # Makefile para compilação do projeto
-├── README.md                   # Este arquivo de descrição do projeto
-└── .gitignore                  # Arquivo para ignorar arquivos desnecessários no Git
+├── src/                            # Código-fonte do projeto
+│   ├── main.c                      # Programa principal (versão OPT)
+│   ├── main_dia.c                  # Programa principal (versão DIA)
+│   ├── cg_naive.c                  # Implementação ingênua do CG (-O0)
+│   ├── cg_opt.c                    # Implementação otimizada do CG (banda compacta)
+│   ├── cgSolver-dia.c              # Implementação com formato DIA
+│   ├── band_matrix.c               # Funções para geração e manipulação (formato banda)
+│   ├── band_matrix_dia.c           # Funções para formato DIA puro
+│   └── timer.c                     # Funções para medição de tempo
+│
+├── include/                        # Arquivos de cabeçalho
+│   ├── common.h                    # Definições comuns e macros
+│   ├── band_matrix.h               # Protótipos para matrizes de banda
+│   ├── band_matrix_dia.h           # Protótipos para formato DIA
+│   └── timer.h                     # Protótipos para funções de temporização
+│
+├── scripts/                        # Scripts para execução e análise
+│   ├── run_tests.sh                # Script unificado para testar todas as versões
+│   ├── analyze_results.py          # Análise e geração de tabelas (com hardware)
+│   ├── analyze_results_basic.py    # Análise básica (sem hardware)
+│   └── plot_results.py             # Geração de gráficos
+│
+├── docs/                           # Documentação e estudos
+│   ├── especificacao-t1.pdf        # Enunciado oficial do trabalho
+│   ├── relatorio/                  # Relatório final em LaTeX
+│   │   ├── relatorio.tex           # Documento principal
+│   │   ├── relatorio.pdf           # PDF gerado
+│   │   └── referencias.bib         # Referências bibliográficas
+│   ├── results/                    # Resultados de execuções anteriores
+│   │   ├── naive/                  # Resultados da versão naive
+│   │   ├── opt1/                   # Resultados da versão Otimizada por flags
+│   │   ├── opt2/                   # Resultados da versão OPT com loop unrolling manual (v2)
+│   │   └── opt3/                   # Resultados da versão DIA (v3)
+│   └── study-tests/                # Testes e estudos preliminares
+│       ├── band-matrix/            # Estudos sobre armazenamento em banda
+│       └── gradients/              # Estudos sobre o método CG
+│
+├── obj/                            # Arquivos objetos (gerados na compilação)
+│   ├── naive/                      # Objetos da versão naive
+│   ├── opt/                        # Objetos da versão OPT
+│   └── dia/                        # Objetos da versão DIA
+│
+├── cgSolver-naive                  # Binário: versão ingênua (-O0)
+├── cgSolver                        # Binário: versão OPT (-O3 -march=native)
+├── cgSolver-dia                    # Binário: versão DIA (-O3 -march=native)
+├── Makefile                        # Makefile para compilação
+├── README.md                       # Este arquivo
+└── .gitignore                      # Arquivo para ignorar arquivos desnecessários
 ```
 
 ---
@@ -107,7 +134,7 @@ O projeto inclui um sistema automatizado para coleta de métricas em JSON com su
 **Script principal:** `scripts/run_tests.sh`
 
 ```bash
-# Execução simples (1 rodada, sem Likwid)
+# Execução simples (1 rodada, sem Likwid, testa todas as 3 versões)
 ./scripts/run_tests.sh
 
 # 3 rodadas para cálculo de média e desvio padrão
@@ -120,13 +147,14 @@ O projeto inclui um sistema automatizado para coleta de métricas em JSON com su
 ./scripts/run_tests.sh --runs 3 --quiet
 ```
 
-**Saída:** Um arquivo JSON com timestamp, estruturado hierarquicamente:
+**Saída:** Um arquivo JSON com timestamp, contendo resultados de **todas as 3 versões** (cgSolver-naive, cgSolver, cgSolver-dia) estruturados hierarquicamente:
 ```json
 {
   "metadata": {"timestamp": "...", "num_runs": 3, "likwid_enabled": true},
   "results": {
     "cgSolver-naive": [{"config": {...}, "executions": [...]}],
-    "cgSolver": [...]
+    "cgSolver": [{"config": {...}, "executions": [...]}],
+    "cgSolver-dia": [{"config": {...}, "executions": [...]}]
   }
 }
 ```
@@ -136,18 +164,17 @@ O projeto inclui um sistema automatizado para coleta de métricas em JSON com su
 Para agregar os resultados e gerar tabelas em múltiplos formatos:
 
 ```bash
-python3 scripts/analyze_results.py resultados_2026-05-23T*.json
+python3 scripts/analyze_results.py resultados_2026-05-24T*.json
 ```
 
 Gera automaticamente:
 - **CSV consolidado** (`_aggregated.csv`): para análise com Excel/Pandas
-- **Markdown** (`_report.md`): tabelas formatadas para README
 - **LaTeX** (`_tables.tex`): tabelas prontas para incluir no relatório PDF
 
-**Saída no console:**
+**Resumo no console:**
 ```
 RESUMO DA ANÁLISE
-=================
+================
 cgSolver-naive:
   N=   1024 | Bandas=7 | Tempo=1.234e-03s (±5.67e-05s)
   ...
@@ -178,6 +205,49 @@ Abaixo está o registro das principais tomadas de decisão e evoluções arquite
   * Finalização da adaptação do CG para trabalhar exclusivamente com o nosso formato em vetor 1D.
   * A operação crítica $A \cdot d = z$ foi implementada na função `matriz_banda_vetor`, percorrendo de forma eficiente apenas os limites reais das colunas da banda através das macros `MAX` e `MIN`.
   * Validação com sistema-teste: geração de matriz SPD em banda, solução conhecida, cálculo de $b = A \cdot x_{true}$ e resolução com CG. Erro relativo tipicamente da ordem de $10^{-14}$ a $10^{-10}$, confirmando a corretude da implementação.
+
+---
+
+## Estratégia de Otimização
+
+O projeto segue uma **metodologia iterativa de otimização**, com três fases bem definidas, cada uma com aumento progressivo de complexidade e ganho de desempenho esperado:
+
+### Otimização 1: Flags de Compilador (-O3 -march=native)
+
+**Status:** ✅ Concluído
+
+- **Descrição:** Aplicação de otimizações padrão de compilador (nível 3) e extensões específicas da arquitetura (-march=native).
+- **Benefício esperado:** 2–4x de speedup sem mudanças de código.
+- **Implementação:** `cgSolver` usa `FLAGS_OPT = -O3 -march=native`; `cgSolver-naive` usa `-O0` para baseline.
+- **Documentação:** [docs/estudo_01.md](docs/estudo_01.md)
+
+### Otimização 2: Loop Unrolling + restrict (Banda Compacta)
+
+**Status:** ✅ Concluído
+
+- **Descrição:** Manualmente desenrolar laços internos no produto matriz-vetor e usar `restrict` para promover vetorização automática.
+- **Ganho incremental esperado:** 1.2–1.8x sobre Otimização 1 (total: ~3–7x sobre naive).
+- **Implementação:** `cg_opt.c` + `band_matrix.c` com otimizações de laço.
+- **Documentação:** [docs/estudo_02.md](docs/estudo_02.md)
+
+### Otimização 3: Formato DIA Puro (Diagonal Storage)
+
+**Status:** ✅ Concluído
+
+- **Descrição:** Restruturação de dados: cada diagonal armazenada como vetor separado, permitindo acessos com stride regular ao vetor de solução `x`.
+- **Ganho incremental esperado:** 1.3–2.5x sobre Otimização 2 (total: ~5–17x sobre naive).
+- **Benefício principal:** Vetorização automática trivial (SIMD/AVX2) due to predictable memory access patterns.
+- **Implementação:** `band_matrix_dia.c` + `cgSolver-dia.c` + `main_dia.c`
+- **Documentação:** [docs/estudo_03.md](docs/estudo_03.md)
+- **Estrutura:** Format diagonal puro (DIA) - cada diagonal é um vetor contíguo de comprimento n. Mapeamento: diagonal d (deslocamento) está em `diagonais[d + mb]` onde mb é a meia-banda.
+
+### Otimização 4: Intrinsecar AVX2 (Futuro - Opcional)
+
+**Status:** 🔄 Planejado
+
+- **Descrição:** Uso explícito de intrinsecar AVX2 nos kernels críticos (produto matriz-vetor, produtos internos).
+- **Ganho esperado:** +20–30% adicional.
+- **Não será implementado neste trabalho**, mas a base está pronta para expansão futura.
 
 ---
 
