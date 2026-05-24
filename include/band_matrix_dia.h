@@ -1,6 +1,10 @@
 #ifndef BAND_MATRIX_DIA_H
 #define BAND_MATRIX_DIA_H
 
+#include <stdlib.h>			// para posix_memalign
+#include <immintrin.h>		// para intrinsics AVX2
+
+
 struct matriz_banda_dia {
 	int n;  // ordem da matriz
 	int mb; // meia-banda (número de diagonais acima/abaixo da principal)
@@ -14,5 +18,6 @@ void preenche_matriz_dia(struct matriz_banda_dia *m, unsigned int seed_mat, unsi
 
 // Produto matriz-vetor otimizado
 double *matriz_banda_vetor_dia(const struct matriz_banda_dia *a, const double *x);
+double *matriz_banda_vetor_dia_avx(const struct matriz_banda_dia *a, const double *x);
 
 #endif

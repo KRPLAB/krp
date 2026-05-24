@@ -1,5 +1,4 @@
 #include "../include/band_matrix_dia.h"
-#include "../include/timer.h"
 #include <stdlib.h>
 #include <stdio.h>
 

@@ -1,5 +1,4 @@
 #include "../include/band_matrix_dia.h"
-#include "../include/common.h" // MAX, MIN
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
