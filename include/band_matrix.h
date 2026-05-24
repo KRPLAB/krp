@@ -96,6 +96,6 @@ void preenche_matriz(struct matriz_banda *m, unsigned int seed_mat, unsigned int
  * @param x Vetor de entrada (tamanho a->linhas).
  * @return Ponteiro para vetor resultado (tamanho a->linhas). Deve ser liberado com free.
  */
-double *matriz_banda_vetor(const struct matriz_banda *a, const double *x);
+double *matriz_banda_vetor(const struct matriz_banda * restrict a, const double * restrict x);
 
 #endif // BAND_MATRIX_H
