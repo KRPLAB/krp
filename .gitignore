@@ -1,3 +1,7 @@
 *.o
+/obj/
+cgSolver
+cgSolver-dia
+cgSolver-naive
 graficos/*
 docs/
