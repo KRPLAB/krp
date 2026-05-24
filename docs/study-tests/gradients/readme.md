@@ -15,6 +15,8 @@ Implementação e validação do algoritmo do Gradiente Conjugado para resoluç�
 
 ## Referências Bibliográficas
 
+Métodos numéricos M. Cristina C. Cunha, 2 edição, 2003 Editora unicamp
+
 ANDRETTA, Marina; TOLEDO, Franklina M. R. **Resolução de sistemas de equações lineares: Método dos Gradientes Conjugados**. São Carlos: ICMC-USP, 21 set. 2012. Disponível em: https://sites.icmc.usp.br/andretta/ensino/aulas/sme0100-2-12/aula6-gradconj.pdf. Acesso em: 12 maio 2026.
 
 PENNA, Thadeu (orientador). **Métodos do Gradiente (Aula 11)**. YouTube. Disponível em: https://youtu.be/VBNPQorUUhg. Acesso em: 12 maio 2026.
