@@ -11,6 +11,7 @@ Uso:
 
 import json
 import sys
+import math
 import statistics
 from pathlib import Path
 from collections import defaultdict
@@ -55,13 +56,21 @@ class ResultsAnalyzer:
                     if exec_data.get('hardware_metrics') is not None:
                         hw = exec_data['hardware_metrics']
                         if hw.get('l3_request_rate') and hw['l3_request_rate'] != 0:
-                            l3_reqs.append(float(hw['l3_request_rate']))
+                            val = float(hw['l3_request_rate'])
+                            if not math.isinf(val) and not math.isnan(val):
+                                l3_reqs.append(val)
                         if hw.get('l3_miss_rate') and hw['l3_miss_rate'] != 0:
-                            l3_misses.append(float(hw['l3_miss_rate']))
+                            val = float(hw['l3_miss_rate'])
+                            if not math.isinf(val) and not math.isnan(val):
+                                l3_misses.append(val)
                         if hw.get('memory_bandwidth_mbps') and hw['memory_bandwidth_mbps'] != 0:
-                            mem_bws.append(float(hw['memory_bandwidth_mbps']))
+                            val = float(hw['memory_bandwidth_mbps'])
+                            if not math.isinf(val) and not math.isnan(val):
+                                mem_bws.append(val)
                         if hw.get('energy_core_j') and hw['energy_core_j'] != 0:
-                            energies.append(float(hw['energy_core_j']))
+                            val = float(hw['energy_core_j'])
+                            if not math.isinf(val) and not math.isnan(val):
+                                energies.append(val)
                 
                 if not tempos:
                     continue
