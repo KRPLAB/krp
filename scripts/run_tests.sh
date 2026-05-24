@@ -107,7 +107,7 @@ print_step "!! Gerando resultados em: $OUTPUT_FILE"
 
   # Loop sobre cada binário
   FIRST_BINARY=1
-  for BINARY in "cgSolver"; do
+  for BINARY in "cgSolver-dia"; do
 	  if [ ! -f "./$BINARY" ]; then
 		  continue
 	  fi
