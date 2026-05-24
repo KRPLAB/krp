@@ -77,7 +77,7 @@ extract_likwid_metric() {
 
 # Verifica compilação
 print_header "COMPILAÇÃO"
-print_step "[1/5] A compilar os códigos-fonte..."
+print_step "A compilar os códigos-fonte..."
 
 if make clean > /dev/null 2>&1; then
 	:
@@ -90,6 +90,7 @@ if ! make > /dev/null 2>&1; then
 fi
 
 print_step "!! Compilação concluída com sucesso"
+print_step "!! Gerando resultados em: $OUTPUT_FILE"
 
 # ============================================================================
 # INÍCIO DO JSON
@@ -106,7 +107,7 @@ print_step "!! Compilação concluída com sucesso"
 
   # Loop sobre cada binário
   FIRST_BINARY=1
-  for BINARY in "cgSolver-naive"; do
+  for BINARY in "cgSolver"; do
 	  if [ ! -f "./$BINARY" ]; then
 		  continue
 	  fi

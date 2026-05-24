@@ -22,25 +22,51 @@ plt.rcParams.update({
 })
 
 def load_csv(csv_file):
-    """Carrega dados do CSV gerado por analyze_results.py"""
+    """Carrega dados do CSV gerado por analyze_results.py ou analyze_results_basic.py"""
     data = {'cgSolver-naive': [], 'cgSolver': []}
     with open(csv_file, 'r') as f:
         reader = csv.DictReader(f)
+        fieldnames = reader.fieldnames
+        has_hardware = 'energy_core_j' in fieldnames
+        
         for row in reader:
             binary = row['binario']
-            data[binary].append({
+            row_data = {
                 'tamanho': int(row['tamanho']),
                 'bandas': int(row['bandas']),
                 'seed': int(row['seed']),
-                'tempo_mean': float(row['tempo_media_s']),
-                'tempo_std': float(row['tempo_stdev_s']),
                 'iter_mean': float(row['iteracoes_media']),
-                'erro_mean': float(row['erro_media']),
-                'l3_request_rate': float(row['l3_request_rate']),
-                'l3_miss_rate': float(row['l3_miss_rate']),
-                'memory_bandwidth_mbps': float(row['memory_bandwidth_mbps']),
-                'energy_core_j': float(row['energy_core_j'])
-            })
+            }
+            
+            # Carrega tempo e erro se disponíveis (CSV básico)
+            if 'tempo_media_s' in fieldnames:
+                row_data['tempo_mean'] = float(row['tempo_media_s'])
+            else:
+                row_data['tempo_mean'] = 0
+                
+            if 'erro_media' in fieldnames:
+                row_data['erro_mean'] = float(row['erro_media'])
+            else:
+                row_data['erro_mean'] = 0
+            
+            # Carrega métricas de hardware se disponíveis
+            if has_hardware:
+                row_data.update({
+                    'l3_request_rate': float(row.get('l3_request_rate', 0)),
+                    'l3_miss_rate': float(row.get('l3_miss_rate', 0)),
+                    'memory_bandwidth_mbps': float(row.get('memory_bandwidth_mbps', 0)),
+                    'energy_core_j': float(row.get('energy_core_j', 0)),
+                })
+            else:
+                row_data.update({
+                    'l3_request_rate': 0,
+                    'l3_miss_rate': 0,
+                    'memory_bandwidth_mbps': 0,
+                    'energy_core_j': 0,
+                })
+            
+            data[binary].append(row_data)
+    
     return data
 
 def plot_tempo(data, binary_name, output_dir):
@@ -131,6 +157,13 @@ def plot_erro(data, binary_name, output_dir):
 
 def plot_hardware(data, binary_name, output_dir):
     """Plota métricas de hardware: largura de banda, L3 miss rate e energia"""
+    # Verifica se há dados de hardware
+    has_data = any(row['energy_core_j'] > 0 for row in data[binary_name])
+    
+    if not has_data:
+        print(f"⚠️  Sem dados de hardware para {binary_name}, pulando plot_hardware()")
+        return
+    
     sizes = sorted(set(row['tamanho'] for row in data[binary_name]))
     
     for b in [7, 27]:
