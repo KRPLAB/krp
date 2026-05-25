@@ -1,0 +1,635 @@
+{
+  "metadata": {
+    "timestamp": "2026-05-24T00:16:48Z",
+    "num_runs": 1,
+    "likwid_enabled": true
+  },
+  "results": {
+    "cgSolver": [
+      {
+        "config": {
+          "tamanho": 1024,
+          "bandas": 7,
+          "seed": 42
+        },
+        "executions": [
+          {
+            "run": 1,
+            "performance": {
+              "tamanho": 1024,
+              "bandas": 7,
+              "seed": 42,
+              "iteracoes": 24,
+              "tempo_s": 2.435880e-04,
+              "erro_relativo": 3.700561e-11
+            },
+            "hardware_metrics": {
+              "l3_request_rate": null,
+              "l3_miss_rate": null,
+              "memory_bandwidth_mbps": 248.3709,
+              "energy_core_j": 15.9476
+            }
+        }
+        ]
+      },
+      {
+        "config": {
+          "tamanho": 1024,
+          "bandas": 7,
+          "seed": 123
+        },
+        "executions": [
+          {
+            "run": 1,
+            "performance": {
+              "tamanho": 1024,
+              "bandas": 7,
+              "seed": 123,
+              "iteracoes": 24,
+              "tempo_s": 2.314550e-04,
+              "erro_relativo": 1.908003e-11
+            },
+            "hardware_metrics": {
+              "l3_request_rate": 0.0089,
+              "l3_miss_rate": 0.0020,
+              "memory_bandwidth_mbps": 74.1418,
+              "energy_core_j": 26.6573
+            }
+        }
+        ]
+      },
+      {
+        "config": {
+          "tamanho": 1024,
+          "bandas": 27,
+          "seed": 42
+        },
+        "executions": [
+          {
+            "run": 1,
+            "performance": {
+              "tamanho": 1024,
+              "bandas": 27,
+              "seed": 42,
+              "iteracoes": 22,
+              "tempo_s": 5.504550e-04,
+              "erro_relativo": 8.079892e-12
+            },
+            "hardware_metrics": {
+              "l3_request_rate": 0.0021,
+              "l3_miss_rate": 0.0005,
+              "memory_bandwidth_mbps": 855.4834,
+              "energy_core_j": 22.4469
+            }
+        }
+        ]
+      },
+      {
+        "config": {
+          "tamanho": 1024,
+          "bandas": 27,
+          "seed": 123
+        },
+        "executions": [
+          {
+            "run": 1,
+            "performance": {
+              "tamanho": 1024,
+              "bandas": 27,
+              "seed": 123,
+              "iteracoes": 24,
+              "tempo_s": 6.281400e-04,
+              "erro_relativo": 7.998972e-12
+            },
+            "hardware_metrics": {
+              "l3_request_rate": 0.0087,
+              "l3_miss_rate": 0.0013,
+              "memory_bandwidth_mbps": 683.5068,
+              "energy_core_j": 23.1788
+            }
+        }
+        ]
+      },
+      {
+        "config": {
+          "tamanho": 4096,
+          "bandas": 7,
+          "seed": 42
+        },
+        "executions": [
+          {
+            "run": 1,
+            "performance": {
+              "tamanho": 4096,
+              "bandas": 7,
+              "seed": 42,
+              "iteracoes": 26,
+              "tempo_s": 1.173485e-03,
+              "erro_relativo": 1.765470e-11
+            },
+            "hardware_metrics": {
+              "l3_request_rate": 0.0813,
+              "l3_miss_rate": 0.0077,
+              "memory_bandwidth_mbps": 450.5848,
+              "energy_core_j": 24.3922
+            }
+        }
+        ]
+      },
+      {
+        "config": {
+          "tamanho": 4096,
+          "bandas": 7,
+          "seed": 123
+        },
+        "executions": [
+          {
+            "run": 1,
+            "performance": {
+              "tamanho": 4096,
+              "bandas": 7,
+              "seed": 123,
+              "iteracoes": 25,
+              "tempo_s": 7.749760e-04,
+              "erro_relativo": 1.478190e-11
+            },
+            "hardware_metrics": {
+              "l3_request_rate": 0.0099,
+              "l3_miss_rate": 0.0012,
+              "memory_bandwidth_mbps": 149.8132,
+              "energy_core_j": 14.7950
+            }
+        }
+        ]
+      },
+      {
+        "config": {
+          "tamanho": 4096,
+          "bandas": 27,
+          "seed": 42
+        },
+        "executions": [
+          {
+            "run": 1,
+            "performance": {
+              "tamanho": 4096,
+              "bandas": 27,
+              "seed": 42,
+              "iteracoes": 23,
+              "tempo_s": 2.183861e-03,
+              "erro_relativo": 3.792384e-12
+            },
+            "hardware_metrics": {
+              "l3_request_rate": 0.0014,
+              "l3_miss_rate": 0.0001,
+              "memory_bandwidth_mbps": 835.1235,
+              "energy_core_j": 0.0279
+            }
+        }
+        ]
+      },
+      {
+        "config": {
+          "tamanho": 4096,
+          "bandas": 27,
+          "seed": 123
+        },
+        "executions": [
+          {
+            "run": 1,
+            "performance": {
+              "tamanho": 4096,
+              "bandas": 27,
+              "seed": 123,
+              "iteracoes": 24,
+              "tempo_s": 2.050442e-03,
+              "erro_relativo": 4.457667e-12
+            },
+            "hardware_metrics": {
+              "l3_request_rate": 0.0014,
+              "l3_miss_rate": 0.0001,
+              "memory_bandwidth_mbps": 910.2145,
+              "energy_core_j": 0.0278
+            }
+        }
+        ]
+      },
+      {
+        "config": {
+          "tamanho": 16384,
+          "bandas": 7,
+          "seed": 42
+        },
+        "executions": [
+          {
+            "run": 1,
+            "performance": {
+              "tamanho": 16384,
+              "bandas": 7,
+              "seed": 42,
+              "iteracoes": 28,
+              "tempo_s": 3.555769e-03,
+              "erro_relativo": 7.952719e-12
+            },
+            "hardware_metrics": {
+              "l3_request_rate": 0.0020,
+              "l3_miss_rate": 0.0001,
+              "memory_bandwidth_mbps": 2837.3764,
+              "energy_core_j": 0.0656
+            }
+        }
+        ]
+      },
+      {
+        "config": {
+          "tamanho": 16384,
+          "bandas": 7,
+          "seed": 123
+        },
+        "executions": [
+          {
+            "run": 1,
+            "performance": {
+              "tamanho": 16384,
+              "bandas": 7,
+              "seed": 123,
+              "iteracoes": 27,
+              "tempo_s": 3.521154e-03,
+              "erro_relativo": 6.502380e-12
+            },
+            "hardware_metrics": {
+              "l3_request_rate": 0.0020,
+              "l3_miss_rate": 0.0001,
+              "memory_bandwidth_mbps": 1237.8119,
+              "energy_core_j": 0.0707
+            }
+        }
+        ]
+      },
+      {
+        "config": {
+          "tamanho": 16384,
+          "bandas": 27,
+          "seed": 42
+        },
+        "executions": [
+          {
+            "run": 1,
+            "performance": {
+              "tamanho": 16384,
+              "bandas": 27,
+              "seed": 42,
+              "iteracoes": 23,
+              "tempo_s": 8.095555e-03,
+              "erro_relativo": 2.776753e-12
+            },
+            "hardware_metrics": {
+              "l3_request_rate": 0.0014,
+              "l3_miss_rate": 0.0001,
+              "memory_bandwidth_mbps": 2536.8459,
+              "energy_core_j": 0.1452
+            }
+        }
+        ]
+      },
+      {
+        "config": {
+          "tamanho": 16384,
+          "bandas": 27,
+          "seed": 123
+        },
+        "executions": [
+          {
+            "run": 1,
+            "performance": {
+              "tamanho": 16384,
+              "bandas": 27,
+              "seed": 123,
+              "iteracoes": 25,
+              "tempo_s": 8.718064e-03,
+              "erro_relativo": 2.071025e-12
+            },
+            "hardware_metrics": {
+              "l3_request_rate": 0.0014,
+              "l3_miss_rate": 0.0002,
+              "memory_bandwidth_mbps": 1477.9226,
+              "energy_core_j": 0.1253
+            }
+        }
+        ]
+      },
+      {
+        "config": {
+          "tamanho": 65536,
+          "bandas": 7,
+          "seed": 42
+        },
+        "executions": [
+          {
+            "run": 1,
+            "performance": {
+              "tamanho": 65536,
+              "bandas": 7,
+              "seed": 42,
+              "iteracoes": 29,
+              "tempo_s": 2.409845e-02,
+              "erro_relativo": 4.141061e-12
+            },
+            "hardware_metrics": {
+              "l3_request_rate": 0.0025,
+              "l3_miss_rate": 0.0001,
+              "memory_bandwidth_mbps": 2161.2935,
+              "energy_core_j": 0.2623
+            }
+        }
+        ]
+      },
+      {
+        "config": {
+          "tamanho": 65536,
+          "bandas": 7,
+          "seed": 123
+        },
+        "executions": [
+          {
+            "run": 1,
+            "performance": {
+              "tamanho": 65536,
+              "bandas": 7,
+              "seed": 123,
+              "iteracoes": 29,
+              "tempo_s": 2.416143e-02,
+              "erro_relativo": 3.496212e-12
+            },
+            "hardware_metrics": {
+              "l3_request_rate": 0.0025,
+              "l3_miss_rate": 0.0001,
+              "memory_bandwidth_mbps": 1022.3842,
+              "energy_core_j": 0.2716
+            }
+        }
+        ]
+      },
+      {
+        "config": {
+          "tamanho": 65536,
+          "bandas": 27,
+          "seed": 42
+        },
+        "executions": [
+          {
+            "run": 1,
+            "performance": {
+              "tamanho": 65536,
+              "bandas": 27,
+              "seed": 42,
+              "iteracoes": 25,
+              "tempo_s": 4.336035e-02,
+              "erro_relativo": 6.765912e-13
+            },
+            "hardware_metrics": {
+              "l3_request_rate": 0.0015,
+              "l3_miss_rate": 0.0001,
+              "memory_bandwidth_mbps": 1110.4906,
+              "energy_core_j": 0.5566
+            }
+        }
+        ]
+      },
+      {
+        "config": {
+          "tamanho": 65536,
+          "bandas": 27,
+          "seed": 123
+        },
+        "executions": [
+          {
+            "run": 1,
+            "performance": {
+              "tamanho": 65536,
+              "bandas": 27,
+              "seed": 123,
+              "iteracoes": 26,
+              "tempo_s": 4.482807e-02,
+              "erro_relativo": 6.838221e-13
+            },
+            "hardware_metrics": {
+              "l3_request_rate": 0.0016,
+              "l3_miss_rate": 0.0001,
+              "memory_bandwidth_mbps": 1530.6183,
+              "energy_core_j": 0.5685
+            }
+        }
+        ]
+      },
+      {
+        "config": {
+          "tamanho": 262144,
+          "bandas": 7,
+          "seed": 42
+        },
+        "executions": [
+          {
+            "run": 1,
+            "performance": {
+              "tamanho": 262144,
+              "bandas": 7,
+              "seed": 42,
+              "iteracoes": 31,
+              "tempo_s": 1.132894e-01,
+              "erro_relativo": 1.192486e-12
+            },
+            "hardware_metrics": {
+              "l3_request_rate": 0.0025,
+              "l3_miss_rate": 0.0004,
+              "memory_bandwidth_mbps": 1503.9626,
+              "energy_core_j": 1.1712
+            }
+        }
+        ]
+      },
+      {
+        "config": {
+          "tamanho": 262144,
+          "bandas": 7,
+          "seed": 123
+        },
+        "executions": [
+          {
+            "run": 1,
+            "performance": {
+              "tamanho": 262144,
+              "bandas": 7,
+              "seed": 123,
+              "iteracoes": 31,
+              "tempo_s": 1.125518e-01,
+              "erro_relativo": 1.371873e-12
+            },
+            "hardware_metrics": {
+              "l3_request_rate": 0.0025,
+              "l3_miss_rate": 0.0003,
+              "memory_bandwidth_mbps": 1930.5919,
+              "energy_core_j": 1.1562
+            }
+        }
+        ]
+      },
+      {
+        "config": {
+          "tamanho": 262144,
+          "bandas": 27,
+          "seed": 42
+        },
+        "executions": [
+          {
+            "run": 1,
+            "performance": {
+              "tamanho": 262144,
+              "bandas": 27,
+              "seed": 42,
+              "iteracoes": 26,
+              "tempo_s": 2.018422e-01,
+              "erro_relativo": 3.832173e-13
+            },
+            "hardware_metrics": {
+              "l3_request_rate": 0.0016,
+              "l3_miss_rate": 0.0009,
+              "memory_bandwidth_mbps": 6188.9278,
+              "energy_core_j": 2.4023
+            }
+        }
+        ]
+      },
+      {
+        "config": {
+          "tamanho": 262144,
+          "bandas": 27,
+          "seed": 123
+        },
+        "executions": [
+          {
+            "run": 1,
+            "performance": {
+              "tamanho": 262144,
+              "bandas": 27,
+              "seed": 123,
+              "iteracoes": 28,
+              "tempo_s": 2.155938e-01,
+              "erro_relativo": 2.743991e-13
+            },
+            "hardware_metrics": {
+              "l3_request_rate": 0.0016,
+              "l3_miss_rate": 0.0009,
+              "memory_bandwidth_mbps": 6811.7412,
+              "energy_core_j": 2.5508
+            }
+        }
+        ]
+      },
+      {
+        "config": {
+          "tamanho": 1048576,
+          "bandas": 7,
+          "seed": 42
+        },
+        "executions": [
+          {
+            "run": 1,
+            "performance": {
+              "tamanho": 1048576,
+              "bandas": 7,
+              "seed": 42,
+              "iteracoes": 32,
+              "tempo_s": 5.416531e-01,
+              "erro_relativo": 1.036778e-12
+            },
+            "hardware_metrics": {
+              "l3_request_rate": 0.0025,
+              "l3_miss_rate": 0.0016,
+              "memory_bandwidth_mbps": 9107.8437,
+              "energy_core_j": 5.1173
+            }
+        }
+        ]
+      },
+      {
+        "config": {
+          "tamanho": 1048576,
+          "bandas": 7,
+          "seed": 123
+        },
+        "executions": [
+          {
+            "run": 1,
+            "performance": {
+              "tamanho": 1048576,
+              "bandas": 7,
+              "seed": 123,
+              "iteracoes": 32,
+              "tempo_s": 5.452912e-01,
+              "erro_relativo": 9.109214e-13
+            },
+            "hardware_metrics": {
+              "l3_request_rate": 0.0025,
+              "l3_miss_rate": 0.0016,
+              "memory_bandwidth_mbps": 8360.2906,
+              "energy_core_j": 5.1111
+            }
+        }
+        ]
+      },
+      {
+        "config": {
+          "tamanho": 1048576,
+          "bandas": 27,
+          "seed": 42
+        },
+        "executions": [
+          {
+            "run": 1,
+            "performance": {
+              "tamanho": 1048576,
+              "bandas": 27,
+              "seed": 42,
+              "iteracoes": 26,
+              "tempo_s": 8.489545e-01,
+              "erro_relativo": 1.675455e-13
+            },
+            "hardware_metrics": {
+              "l3_request_rate": 0.0015,
+              "l3_miss_rate": 0.0013,
+              "memory_bandwidth_mbps": 10451.9734,
+              "energy_core_j": 9.9938
+            }
+        }
+        ]
+      },
+      {
+        "config": {
+          "tamanho": 1048576,
+          "bandas": 27,
+          "seed": 123
+        },
+        "executions": [
+          {
+            "run": 1,
+            "performance": {
+              "tamanho": 1048576,
+              "bandas": 27,
+              "seed": 123,
+              "iteracoes": 28,
+              "tempo_s": 9.091059e-01,
+              "erro_relativo": 1.540133e-13
+            },
+            "hardware_metrics": {
+              "l3_request_rate": 0.0016,
+              "l3_miss_rate": 0.0013,
+              "memory_bandwidth_mbps": 10893.2347,
+              "energy_core_j": 10.5410
+            }
+        }
+        ]
+      }
+    ]
+    }
+  }
