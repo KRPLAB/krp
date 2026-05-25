@@ -10,7 +10,6 @@ Uso:
 
 import json
 import sys
-import math
 import statistics
 from pathlib import Path
 from typing import Dict
@@ -54,7 +53,7 @@ class ResultsAnalyzerBasic:
                     'num_runs': len(tempos),
                     'tempo': {
                         'media': statistics.mean(tempos),
-                        'stdev': statistics.stdev(tempos) if len(tempos) > 1 else 0,
+                        'stdev': statistics.stdev(tempos) if len(tempos) > 1 else 0.0,
                     },
                     'iteracoes': {
                         'media': statistics.mean(iteracoes),
@@ -92,63 +91,50 @@ class ResultsAnalyzerBasic:
         return output_file
     
     def generate_latex(self, aggregated: Dict, output_file: str = None):
-        """Gera tabelas em LaTeX sem hardware, com colunas:
-        Tamanho | Bandas | Seed | Rodadas | Tempo (s) | Desvio | Iter. | Erro Relativo"""
+        """Gera tabelas em LaTeX sem hardware para cada binário encontrado."""
         if output_file is None:
             output_file = self.json_file.replace('.json', '_tables_basic.tex')
         
         with open(output_file, 'w') as f:
-            # Tabela Naive
-            f.write("% Resultados - Versão NAIVE (sem hardware)\n")
-            f.write("\\begin{table}[H]\n")
-            f.write("\\centering\n")
-            f.write("\\caption{Resultados - Versão NAIVE}\n")
-            f.write("\\label{tab:naive}\n")
-            f.write("\\begin{tabular}{|c|c|c|c|c|c|c|c|}\n")
-            f.write("\\hline\n")
-            f.write("Tamanho & Bandas & Seed & Rodadas & Tempo (s) & Desvio & Iter. & Erro Relativo \\\\\n")
-            f.write("\\hline\n")
-            
-            for result in aggregated.get('cgSolver-naive', []):
-                config = result['config']
-                f.write(f"{config['tamanho']:,} & "
-                        f"{config['bandas']} & "
-                        f"{config['seed']} & "
-                        f"{result['num_runs']} & "
-                        f"\\num{{{result['tempo']['media']:.3e}}} & "
-                        f"\\num{{{result['tempo']['stdev']:.3e}}} & "
-                        f"{result['iteracoes']['media']:.0f} & "
-                        f"\\num{{{result['erro']['media']:.3e}}} \\\\\n")
-            
-            f.write("\\hline\n")
-            f.write("\\end{tabular}\n")
-            f.write("\\end{table}\n\n")
-            
-            # Tabela Otimizada
-            f.write("% Resultados - Versão OTIMIZADA (sem hardware)\n")
-            f.write("\\begin{table}[H]\n")
-            f.write("\\centering\n")
-            f.write("\\caption{Resultados - Versão OTIMIZADA}\n")
-            f.write("\\label{tab:otimizado}\n")
-            f.write("\\begin{tabular}{|c|c|c|c|c|c|c|c|}\n")
-            f.write("\\hline\n")
-            f.write("Tamanho & Bandas & Seed & Rodadas & Tempo (s) & Desvio & Iter. & Erro Relativo \\\\\n")
-            f.write("\\hline\n")
-            
-            for result in aggregated.get('cgSolver', []):
-                config = result['config']
-                f.write(f"{config['tamanho']:,} & "
-                        f"{config['bandas']} & "
-                        f"{config['seed']} & "
-                        f"{result['num_runs']} & "
-                        f"\\num{{{result['tempo']['media']:.3e}}} & "
-                        f"\\num{{{result['tempo']['stdev']:.3e}}} & "
-                        f"{result['iteracoes']['media']:.0f} & "
-                        f"\\num{{{result['erro']['media']:.3e}}} \\\\\n")
-            
-            f.write("\\hline\n")
-            f.write("\\end{tabular}\n")
-            f.write("\\end{table}\n")
+            for binary_name, results in aggregated.items():
+                if not results:
+                    continue
+                
+                # Cabeçalho amigável
+                if 'naive' in binary_name.lower():
+                    caption = "Resultados - Versão NAIVE (sem hardware)"
+                    label = "tab:naive"
+                elif 'dia' in binary_name.lower():
+                    caption = "Resultados - Versão DIA (sem hardware)"
+                    label = "tab:dia"
+                else:
+                    caption = f"Resultados - {binary_name} (sem hardware)"
+                    label = f"tab:{binary_name.lower().replace('-', '_')}"
+                
+                f.write(f"% Resultados - {binary_name}\n")
+                f.write("\\begin{table}[H]\n")
+                f.write("\\centering\n")
+                f.write(f"\\caption{{{caption}}}\n")
+                f.write(f"\\label{{{label}}}\n")
+                f.write("\\begin{tabular}{|c|c|c|c|c|c|c|c|}\n")
+                f.write("\\hline\n")
+                f.write("Tamanho & Bandas & Seed & Rodadas & Tempo (s) & Desvio & Iter. & Erro Relativo \\\\\n")
+                f.write("\\hline\n")
+                
+                for result in results:
+                    config = result['config']
+                    f.write(f"{config['tamanho']:,} & "
+                            f"{config['bandas']} & "
+                            f"{config['seed']} & "
+                            f"{result['num_runs']} & "
+                            f"\\num{{{result['tempo']['media']:.3e}}} & "
+                            f"\\num{{{result['tempo']['stdev']:.3e}}} & "
+                            f"{result['iteracoes']['media']:.0f} & "
+                            f"\\num{{{result['erro']['media']:.3e}}} \\\\\n")
+                
+                f.write("\\hline\n")
+                f.write("\\end{tabular}\n")
+                f.write("\\end{table}\n\n")
         
         return output_file
     
@@ -159,18 +145,16 @@ class ResultsAnalyzerBasic:
         print(f"Arquivo: {self.json_file}")
         print(f"Número de rodadas: {self.data['metadata']['num_runs']}\n")
         
-        for binary_name in ['cgSolver-naive', 'cgSolver']:
-            results = aggregated.get(binary_name, [])
+        for binary_name, results in aggregated.items():
             if not results:
                 continue
             print(f"\n{binary_name}:")
             print("-" * 100)
-            for result in results[:3]:
+            for result in results[:3]:  # mostra apenas as 3 primeiras configurações
                 config = result['config']
                 print(f"  N={config['tamanho']:>7} | B={config['bandas']} | Seed={config['seed']} | "
                       f"T={result['tempo']['media']:.3e}s ± {result['tempo']['stdev']:.3e}s | "
                       f"Iter.={result['iteracoes']['media']:.0f}")
-
 
 def main():
     if len(sys.argv) < 2:
@@ -195,7 +179,6 @@ def main():
     
     print(f"\n✓ CSV gerado: {csv_file}")
     print(f"✓ LaTeX gerado: {tex_file}\n")
-
 
 if __name__ == '__main__':
     main()
