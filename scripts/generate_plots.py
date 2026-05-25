@@ -27,7 +27,7 @@ def load_csv(filepath):
 def plot_tempo_comparativo():
     """Gera gráfico de tempo de execução comparativo"""
     opt1 = load_csv("docs/results/opt1/resultados_2026-05-24T00-14-15Z_aggregated_basic.csv")
-    opt2 = load_csv("docs/results/opt2/resultados_2026-05-24T18-06-55Z_aggregated.csv")
+    opt2 = load_csv("docs/results/opt2/resultados_2026-05-24T18-06-55Z_aggregated_basic.csv")
     opt3 = load_csv("docs/results/opt3/resultados_2026-05-24T19-55-36Z_aggregated_basic.csv")
     
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
@@ -71,8 +71,8 @@ def plot_tempo_comparativo():
 def plot_speedup():
     """Gera gráfico de speedup"""
     opt1 = load_csv("docs/results/opt1/resultados_2026-05-24T00-14-15Z_aggregated_basic.csv")
-    opt2 = load_csv("docs/results/opt2/resultados_2026-05-24T18-06-55Z_aggregated.csv")
-    opt3 = load_csv("docs/results/opt3/resultados_2026-05-24T19-58-08Z_aggregated.csv")
+    opt2 = load_csv("docs/results/opt2/resultados_2026-05-24T18-06-55Z_aggregated_basic.csv")
+    opt3 = load_csv("docs/results/opt3/resultados_2026-05-24T19-55-36Z_aggregated_basic.csv")
     
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
     
