@@ -31,54 +31,92 @@ O projeto conta com **três versões** do solucionador CG, cada uma com um níve
 
 ```
 krp/
-├── src/                            # Código-fonte do projeto
-│   ├── main.c                      # Programa principal (versão OPT)
-│   ├── main_dia.c                  # Programa principal (versão DIA)
-│   ├── cg_naive.c                  # Implementação ingênua do CG (-O0)
-│   ├── cg_opt.c                    # Implementação otimizada do CG (banda compacta)
-│   ├── cgSolver-dia.c              # Implementação com formato DIA
-│   ├── band_matrix.c               # Funções para geração e manipulação (formato banda)
-│   ├── band_matrix_dia.c           # Funções para formato DIA puro
-│   └── timer.c                     # Funções para medição de tempo
-│
-├── include/                        # Arquivos de cabeçalho
-│   ├── common.h                    # Definições comuns e macros
-│   ├── band_matrix.h               # Protótipos para matrizes de banda
-│   ├── band_matrix_dia.h           # Protótipos para formato DIA
-│   └── timer.h                     # Protótipos para funções de temporização
-│
-├── scripts/                        # Scripts para execução e análise
-│   ├── run_tests.sh                # Script unificado para testar todas as versões
-│   ├── analyze_results.py          # Análise e geração de tabelas (com hardware)
-│   ├── analyze_results_basic.py    # Análise básica (sem hardware)
-│   └── plot_results.py             # Geração de gráficos
+├── cgSolver                        # Binário: versão OPT (-O3 -march=native)
+├── cgSolver-dia                    # Binário: versão DIA (-O3 -march=native)
+├── cgSolver-naive                  # Binário: versão ingênua (-O0)
 │
 ├── docs/                           # Documentação e estudos
 │   ├── especificacao-t1.pdf        # Enunciado oficial do trabalho
-│   ├── relatorio/                  # Relatório final em LaTeX
-│   │   ├── relatorio.tex           # Documento principal
-│   │   ├── relatorio.pdf           # PDF gerado
-│   │   └── referencias.bib         # Referências bibliográficas
-│   ├── results/                    # Resultados de execuções anteriores
-│   │   ├── naive/                  # Resultados da versão naive
-│   │   ├── opt1/                   # Resultados da versão Otimizada por flags
-│   │   ├── opt2/                   # Resultados da versão OPT com loop unrolling manual (v2)
-│   │   └── opt3/                   # Resultados da versão DIA (v3)
+│   ├── results/                    # Resultados de execuções
+│   │   ├── graficos/               # Gráficos de comparação
+│   │   │   ├── bw_comparativo.pdf  # Comparativo de largura de banda
+│   │   │   ├── speedup_comparativo.pdf  # Comparativo de speedup
+│   │   │   └── tempo_comparativo.pdf    # Comparativo de tempo
+│   │   ├── naive/                  # Resultados da versão NAIVE (30 rodadas + Likwid)
+│   │   │   ├── resultados_2026-05-23T21-03-45Z_naive.json
+│   │   │   ├── resultados_2026-05-23T21-03-45Z_naive_aggregated_basic.csv
+│   │   │   ├── resultados_2026-05-23T22-20-56Z_naive_likwid.json
+│   │   │   └── resultados_2026-05-23T22-20-56Z_naive_likwid_aggregated.csv
+│   │   ├── opt1/                   # Resultados da versão OPT1 (30 rodadas + Likwid)
+│   │   │   ├── resultados_2026-05-24T00-14-15Z.json
+│   │   │   ├── resultados_2026-05-24T00-14-15Z_aggregated_basic.csv
+│   │   │   ├── resultados_2026-05-24T00-16-48Z.json
+│   │   │   └── resultados_2026-05-24T00-16-48Z_aggregated.csv
+│   │   ├── opt2/                   # Resultados da versão OPT2 (30 rodadas + Likwid)
+│   │   │   ├── resultados_2026-05-24T18-06-55Z.json
+│   │   │   ├── resultados_2026-05-24T18-06-55Z_aggregated_basic.csv
+│   │   │   ├── resultados_2026-05-24T18-09-29Z.json
+│   │   │   └── resultados_2026-05-24T18-09-29Z_aggregated.csv
+│   │   └── opt3/                   # Resultados da versão OPT3 (DIA, 30 rodadas + Likwid)
+│   │       ├── resultados_2026-05-24T19-55-36Z.json
+│   │       ├── resultados_2026-05-24T19-55-36Z_aggregated_basic.csv
+│   │       ├── resultados_2026-05-24T19-58-08Z.json
+│   │       └── resultados_2026-05-24T19-58-08Z_aggregated.csv
 │   └── study-tests/                # Testes e estudos preliminares
 │       ├── band-matrix/            # Estudos sobre armazenamento em banda
+│       │   ├── band-matrix_video.c
+│       │   ├── matrix-band-4x4.txt
+│       │   ├── readme.md
+│       │   ├── sparse_matrix.c
+│       │   ├── sparse_matrix.h
+│       │   └── teste_banda_menos_if.c
 │       └── gradients/              # Estudos sobre o método CG
+│           ├── gradiente.c
+│           ├── gradiente_conjugado.c
+│           └── readme.md
+│
+├── include/                        # Arquivos de cabeçalho
+│   ├── band_matrix.h               # Protótipos para matrizes de banda
+│   ├── band_matrix_dia.h           # Protótipos para formato DIA
+│   ├── common.h                    # Definições comuns e macros
+│   └── timer.h                     # Protótipos para funções de temporização
 │
 ├── obj/                            # Arquivos objetos (gerados na compilação)
-│   ├── naive/                      # Objetos da versão naive
-│   ├── opt/                        # Objetos da versão OPT
-│   └── dia/                        # Objetos da versão DIA
+│   ├── dia/                        # Objetos da versão DIA
+│   │   ├── band_matrix_dia.o
+│   │   ├── cgSolver-dia.o
+│   │   ├── main_dia.o
+│   │   └── timer.o
+│   ├── naive/                      # Objetos da versão NAIVE
+│   │   ├── band_matrix.o
+│   │   ├── cg_naive.o
+│   │   ├── main.o
+│   │   └── timer.o
+│   └── opt/                        # Objetos da versão OPT
+│       ├── band_matrix.o
+│       ├── cg_opt.o
+│       ├── main.o
+│       └── timer.o
 │
-├── cgSolver-naive                  # Binário: versão ingênua (-O0)
-├── cgSolver                        # Binário: versão OPT (-O3 -march=native)
-├── cgSolver-dia                    # Binário: versão DIA (-O3 -march=native)
-├── Makefile                        # Makefile para compilação
-├── README.md                       # Este arquivo
-└── .gitignore                      # Arquivo para ignorar arquivos desnecessários
+├── scripts/                        # Scripts para execução e análise
+│   ├── analyze_results.py          # Análise e geração de tabelas (com métricas de hardware)
+│   ├── analyze_results_basic.py    # Análise básica (sem hardware)
+│   ├── generate_plots.py           # Geração de gráficos comparativos
+│   ├── plot_results.py             # Script auxiliar para plotagem
+│   └── run_tests.sh                # Script unificado para testar todas as versões
+│
+├── src/                            # Código-fonte do projeto
+│   ├── band_matrix.c               # Funções para geração e manipulação (formato banda)
+│   ├── band_matrix_dia.c           # Funções para formato DIA puro
+│   ├── cg_naive.c                  # Implementação ingênua do CG (-O0)
+│   ├── cg_opt.c                    # Implementação otimizada do CG (banda compacta)
+│   ├── cgSolver-dia.c              # Implementação com formato DIA
+│   ├── main.c                      # Programa principal (versão OPT)
+│   ├── main_dia.c                  # Programa principal (versão DIA)
+│   └── timer.c                     # Funções para medição de tempo
+│
+├── Makefile                        # Makefile para compilação (compila 3 versões)
+└── README.md                       # Este arquivo
 ```
 
 ---
